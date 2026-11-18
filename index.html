@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="description" content="Un lugar para tus libros, tus próximas lecturas y las historias que se quedan contigo.">
+  <meta name="theme-color" content="#244d3d">
+  <link rel="icon" type="image/svg+xml" href="./assets/folio.svg">
+  <link rel="stylesheet" href="./assets/app.css">
+  <title>Folio · Tu próxima página</title>
+  <script type="module" src="./src/main.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Ir a mi biblioteca</a>
+<aside class="sidebar" aria-label="Navegación principal">
+  <a class="brand" href="./" aria-label="Folio, inicio"><span class="brand-symbol" aria-hidden="true">f</span>folio<span class="brand-dot">.</span></a>
+  <p class="nav-label">TU ESPACIO DE LECTURA</p>
+  <nav class="side-nav" aria-label="Vistas de la biblioteca">
+    <button class="nav-item active" data-view="all" aria-current="page"><span data-icon="library"></span>Mi biblioteca<span id="nav-total" class="nav-count">0</span></button>
+    <button class="nav-item" data-view="reading"><span data-icon="book-open"></span>En lectura<span id="nav-reading" class="nav-count">0</span></button>
+    <button class="nav-item" data-view="finished"><span data-icon="check"></span>Terminados<span id="nav-finished" class="nav-count">0</span></button>
+  </nav>
+  <div class="sidebar-note"><span class="little-flower" aria-hidden="true">✳</span><p>Las buenas historias<br>merecen su lugar.</p><span>Haz espacio para la próxima.</span></div>
+  <div class="data-actions"><button id="export-button"><span data-icon="download"></span>Exportar biblioteca</button><button id="import-button"><span data-icon="upload"></span>Importar biblioteca</button><input id="import-file" type="file" accept="application/json,.json" hidden><p>Tus libros se guardan en este dispositivo.</p></div>
+  <div class="sidebar-profile"><span class="avatar">EL</span><div><strong>Mi rincón de lectura</strong><small>Una página a la vez</small></div></div>
+</aside>
+<main id="main" class="main-content">
+  <header class="topbar"><span class="breadcrumb">Mi espacio <span aria-hidden="true">/</span> <strong>Biblioteca</strong></span><label class="search"><span data-icon="search"></span><input id="search" type="search" placeholder="Buscar título o autor…" aria-label="Buscar título o autor" maxlength="120"></label></header>
+  <section class="intro" aria-labelledby="page-heading"><div><p class="eyebrow">ENTRE HISTORIAS Y PÁGINAS</p><h1 id="page-heading">Una página más.</h1><p class="intro-copy">Guarda lo que quieres leer. Celebra lo que ya leíste.</p></div><button class="button button-primary" id="add-book"><span data-icon="plus"></span>Añadir libro</button></section>
+  <section class="reading-overview" aria-label="Resumen de lectura">
+    <div class="current-reading"><div class="current-copy"><p class="eyebrow">AHORA ENTRE TUS MANOS</p><h2 id="current-title">Tu próxima historia te espera</h2><p id="current-author">Elige un libro y empieza a leer.</p><div class="current-progress"><progress id="current-progress" max="100" value="0" aria-label="Progreso del libro actual"></progress><span id="current-progress-text">0 %</span></div><button class="text-button" id="continue-reading">Registrar lectura <span data-icon="pencil"></span></button></div><div id="featured-cover" class="featured-cover" data-palette="fern" aria-hidden="true"><div class="cover-lines"></div><span class="featured-cover-author"></span><strong class="featured-cover-title">Folio</strong><span class="cover-seal">f.</span></div></div>
+    <div class="reading-summary"><span class="summary-star" aria-hidden="true">✳</span><p class="eyebrow">TU BIBLIOTECA, A TU RITMO</p><p class="summary-message">No se trata de leer más.<br><em>Se trata de encontrar<br>tu próxima buena historia.</em></p><div class="summary-stats"><div><strong id="stat-total">0</strong><span>libros guardados</span></div><div><strong id="stat-pages">0</strong><span>páginas recorridas</span></div></div></div>
+  </section>
+  <section class="library" aria-labelledby="library-heading">
+    <div class="library-heading"><div><h2 id="library-heading">Mi biblioteca <span id="library-count">0 libros</span></h2><p id="library-subtitle">Un pequeño universo de historias por descubrir.</p></div><label class="sort-control"><span>Ordenar por</span><select id="sort" aria-label="Ordenar libros"><option value="recent">Más recientes</option><option value="title">Título A–Z</option><option value="progress">Mayor progreso</option></select></label></div>
+    <div class="filter-row" role="group" aria-label="Filtrar por estado"><button class="filter active" data-filter="all" aria-pressed="true">Todos <span>0</span></button><button class="filter" data-filter="unread" aria-pressed="false">Por leer <span>0</span></button><button class="filter" data-filter="reading" aria-pressed="false">Leyendo <span>0</span></button><button class="filter" data-filter="finished" aria-pressed="false">Terminados <span>0</span></button><span id="result-count" class="result-count" aria-live="polite"></span></div>
+    <div id="book-grid" class="book-grid"></div>
+    <div id="empty-state" class="empty-state" hidden><span data-icon="book-open"></span><h3>No encontramos esos libros.</h3><p>Prueba otra búsqueda o añade tu próxima lectura.</p><button class="button button-secondary" id="clear-search">Mostrar todos los libros</button></div>
+  </section>
+  <footer class="main-footer"><span>Hecho para quienes siempre llevan una historia pendiente.</span><span class="footer-brand">folio.</span></footer>
+</main>
+<template id="book-template"><article class="book-card"><button class="book-cover" data-palette="fern"><span class="cover-category"></span><span class="cover-design" aria-hidden="true"></span><span class="cover-title"></span><span class="cover-author"></span><span class="cover-bottom" aria-hidden="true">BIBLIOTECA PERSONAL <b>f.</b></span></button><div class="book-info"><div class="book-title-row"><h3></h3><button class="icon-button edit-book" title="Editar libro"><span data-icon="more"></span></button></div><p class="book-author"></p><div class="book-status-row"><span class="status"></span><span class="book-page-count"></span></div><progress class="book-progress" value="0" max="100"></progress></div></article></template>
+<dialog id="book-dialog" class="modal"><form id="book-form"><header class="modal-header"><div><p class="eyebrow">UN LUGAR EN TU BIBLIOTECA</p><h2 id="book-dialog-title">Añadir un libro</h2></div><button type="button" class="icon-button close-dialog" aria-label="Cerrar formulario"><span data-icon="close"></span></button></header><input type="hidden" name="id"><label>Título<input name="title" required maxlength="120" placeholder="El nombre de tu próxima historia" autocomplete="off"></label><label>Autor o autora<input name="author" required maxlength="100" placeholder="¿Quién la escribió?" autocomplete="off"></label><div class="form-row"><label>Páginas totales<input name="pages" type="number" min="1" max="20000" required value="200"></label><label>Página actual<input name="currentPage" type="number" min="0" max="20000" required value="0"></label></div><div class="form-row"><label>Género<select name="genre"><option>Narrativa</option><option>Ensayo</option><option>Poesía</option><option>Ciencia ficción</option><option>No ficción</option></select></label><label>Color de la portada<select name="palette"><option value="fern">Bosque</option><option value="clay">Terracota</option><option value="ink">Noche</option><option value="lilac">Lavanda</option><option value="honey">Mostaza</option><option value="sky">Cielo</option></select></label></div><label>Notas de lectura <span class="optional">opcional</span><textarea name="notes" maxlength="1200" rows="3" placeholder="Una idea, una recomendación, una razón para leerlo…"></textarea></label><p class="form-error" id="book-error" role="alert"></p><footer class="modal-actions"><button id="delete-book" type="button" class="danger-text" hidden>Eliminar libro</button><button type="button" class="button button-secondary close-dialog">Cancelar</button><button class="button button-primary" type="submit">Guardar libro</button></footer></form></dialog>
+<dialog id="progress-dialog" class="modal progress-modal"><form id="progress-form"><header class="modal-header"><div><p class="eyebrow">CADA PÁGINA CUENTA</p><h2>¿Hasta dónde llegaste?</h2></div><button type="button" class="icon-button close-dialog" aria-label="Cerrar progreso"><span data-icon="close"></span></button></header><p id="progress-book-title" class="progress-book-title"></p><label>Página actual<input name="currentPage" type="number" min="0" required></label><p id="progress-hint" class="form-hint"></p><p class="form-error" id="progress-error" role="alert"></p><footer class="modal-actions"><button type="button" class="button button-secondary close-dialog">Cancelar</button><button type="submit" class="button button-primary">Guardar progreso</button></footer></form></dialog>
+<dialog id="delete-dialog" class="modal confirm-modal"><form id="delete-form"><p class="eyebrow">TU BIBLIOTECA</p><h2>¿Quitar este libro?</h2><p id="delete-title"></p><p class="form-hint">También se eliminarán sus notas y su progreso.</p><footer class="modal-actions"><button type="button" class="button button-secondary close-dialog">Conservar libro</button><button type="submit" class="button button-danger">Eliminar</button></footer></form></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/projectdiscovery/nuclei-templates",
+  "commit": "5aec5a903cba140f9785d8af1dbab017f43a5b0c",
+  "paths": [
+    "http/misconfiguration/http-missing-security-headers.yaml",
+    "http/miscellaneous/directory-listing.yaml",
+    "http/exposures/configs/git-config.yaml"
+  ]
+}

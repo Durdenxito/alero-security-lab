@@ -1,0 +1,155 @@
+{
+  "variant": "before",
+  "target": "http://host.docker.internal:4181/",
+  "scannedAt": "2026-11-18T23:19:27.234Z",
+  "appSha256": "e1ab36bc46f8defa23cf07bb559856dea86fe4ac52bff982973f576af6a2232b",
+  "zap": {
+    "image": "ghcr.io/zaproxy/zaproxy@sha256:9624669db72f54d86c4b46a7064518bd9bf79d8c61a4c31befa9923489f328af",
+    "version": "2.17.0",
+    "alerts": [
+      {
+        "id": "10038",
+        "name": "Content Security Policy (CSP) Header Not Set",
+        "risk": 2,
+        "count": "3"
+      },
+      {
+        "id": "10020",
+        "name": "Missing Anti-clickjacking Header",
+        "risk": 2,
+        "count": "3"
+      },
+      {
+        "id": "90004",
+        "name": "Cross-Origin-Embedder-Policy Header Missing or Invalid",
+        "risk": 1,
+        "count": "3"
+      },
+      {
+        "id": "90004",
+        "name": "Cross-Origin-Opener-Policy Header Missing or Invalid",
+        "risk": 1,
+        "count": "3"
+      },
+      {
+        "id": "90004",
+        "name": "Cross-Origin-Resource-Policy Header Missing or Invalid",
+        "risk": 1,
+        "count": "5"
+      },
+      {
+        "id": "10063",
+        "name": "Permissions Policy Header Not Set",
+        "risk": 1,
+        "count": "4"
+      },
+      {
+        "id": "10019",
+        "name": "Content-Type Header Missing",
+        "risk": 0,
+        "count": "2"
+      },
+      {
+        "id": "10049",
+        "name": "Storable and Cacheable Content",
+        "risk": 0,
+        "count": "2"
+      },
+      {
+        "id": "10049",
+        "name": "Storable but Non-Cacheable Content",
+        "risk": 0,
+        "count": "5"
+      },
+      {
+        "id": "10031",
+        "name": "User Controllable HTML Element Attribute (Potential XSS)",
+        "risk": 0,
+        "count": "2"
+      }
+    ]
+  },
+  "nuclei": {
+    "image": "projectdiscovery/nuclei:v3.11.1",
+    "templates": {
+      "repository": "https://github.com/projectdiscovery/nuclei-templates",
+      "commit": "5aec5a903cba140f9785d8af1dbab017f43a5b0c",
+      "paths": [
+        "http/misconfiguration/http-missing-security-headers.yaml",
+        "http/miscellaneous/directory-listing.yaml",
+        "http/exposures/configs/git-config.yaml"
+      ]
+    },
+    "findings": [
+      {
+        "id": "git-config",
+        "name": "Git Configuration - Detect",
+        "severity": "medium",
+        "url": "http://host.docker.internal:4181/.git/config"
+      },
+      {
+        "id": "http-missing-security-headers",
+        "matcher": "cross-origin-embedder-policy",
+        "name": "HTTP Missing Security Headers",
+        "severity": "info",
+        "url": "http://host.docker.internal:4181/"
+      },
+      {
+        "id": "http-missing-security-headers",
+        "matcher": "cross-origin-opener-policy",
+        "name": "HTTP Missing Security Headers",
+        "severity": "info",
+        "url": "http://host.docker.internal:4181/"
+      },
+      {
+        "id": "http-missing-security-headers",
+        "matcher": "cross-origin-resource-policy",
+        "name": "HTTP Missing Security Headers",
+        "severity": "info",
+        "url": "http://host.docker.internal:4181/"
+      },
+      {
+        "id": "http-missing-security-headers",
+        "matcher": "strict-transport-security",
+        "name": "HTTP Missing Security Headers",
+        "severity": "info",
+        "url": "http://host.docker.internal:4181/"
+      },
+      {
+        "id": "http-missing-security-headers",
+        "matcher": "content-security-policy",
+        "name": "HTTP Missing Security Headers",
+        "severity": "info",
+        "url": "http://host.docker.internal:4181/"
+      },
+      {
+        "id": "http-missing-security-headers",
+        "matcher": "permissions-policy",
+        "name": "HTTP Missing Security Headers",
+        "severity": "info",
+        "url": "http://host.docker.internal:4181/"
+      },
+      {
+        "id": "http-missing-security-headers",
+        "matcher": "x-frame-options",
+        "name": "HTTP Missing Security Headers",
+        "severity": "info",
+        "url": "http://host.docker.internal:4181/"
+      },
+      {
+        "id": "http-missing-security-headers",
+        "matcher": "x-permitted-cross-domain-policies",
+        "name": "HTTP Missing Security Headers",
+        "severity": "info",
+        "url": "http://host.docker.internal:4181/"
+      },
+      {
+        "id": "http-missing-security-headers",
+        "matcher": "referrer-policy",
+        "name": "HTTP Missing Security Headers",
+        "severity": "info",
+        "url": "http://host.docker.internal:4181/"
+      }
+    ]
+  }
+}
