@@ -1,8 +1,8 @@
 {
   "variant": "before",
   "target": "http://host.docker.internal:4181/",
-  "scannedAt": "2026-11-18T23:19:27.234Z",
-  "appSha256": "e1ab36bc46f8defa23cf07bb559856dea86fe4ac52bff982973f576af6a2232b",
+  "scannedAt": "2026-11-18T23:25:56.693Z",
+  "appSha256": "943b4da40087c45db9a72d1ea55718d711a88e73ca96f0457b29cd2cc2b99e1d",
   "zap": {
     "image": "ghcr.io/zaproxy/zaproxy@sha256:9624669db72f54d86c4b46a7064518bd9bf79d8c61a4c31befa9923489f328af",
     "version": "2.17.0",
@@ -89,27 +89,6 @@
       },
       {
         "id": "http-missing-security-headers",
-        "matcher": "cross-origin-embedder-policy",
-        "name": "HTTP Missing Security Headers",
-        "severity": "info",
-        "url": "http://host.docker.internal:4181/"
-      },
-      {
-        "id": "http-missing-security-headers",
-        "matcher": "cross-origin-opener-policy",
-        "name": "HTTP Missing Security Headers",
-        "severity": "info",
-        "url": "http://host.docker.internal:4181/"
-      },
-      {
-        "id": "http-missing-security-headers",
-        "matcher": "cross-origin-resource-policy",
-        "name": "HTTP Missing Security Headers",
-        "severity": "info",
-        "url": "http://host.docker.internal:4181/"
-      },
-      {
-        "id": "http-missing-security-headers",
         "matcher": "strict-transport-security",
         "name": "HTTP Missing Security Headers",
         "severity": "info",
@@ -146,6 +125,27 @@
       {
         "id": "http-missing-security-headers",
         "matcher": "referrer-policy",
+        "name": "HTTP Missing Security Headers",
+        "severity": "info",
+        "url": "http://host.docker.internal:4181/"
+      },
+      {
+        "id": "http-missing-security-headers",
+        "matcher": "cross-origin-embedder-policy",
+        "name": "HTTP Missing Security Headers",
+        "severity": "info",
+        "url": "http://host.docker.internal:4181/"
+      },
+      {
+        "id": "http-missing-security-headers",
+        "matcher": "cross-origin-opener-policy",
+        "name": "HTTP Missing Security Headers",
+        "severity": "info",
+        "url": "http://host.docker.internal:4181/"
+      },
+      {
+        "id": "http-missing-security-headers",
+        "matcher": "cross-origin-resource-policy",
         "name": "HTTP Missing Security Headers",
         "severity": "info",
         "url": "http://host.docker.internal:4181/"
