@@ -1,31 +1,41 @@
 ---
-title: "Escanear una app antes de publicarla: Folio con ZAP, Nuclei y GitHub Actions"
+title: "Alero: pruebas y escaneo de una aplicación bancaria con ZAP y Nuclei"
 published: false
-description: "Una biblioteca personal, dos escáneres y un pipeline para revisar el artefacto que llegará a GitHub Pages."
-tags: security, webdev, githubactions, testing
+description: "Transferencias en céntimos, pruebas de navegador y revisión del paquete estático antes de publicarlo."
+tags: security, javascript, testing, githubactions
 ---
 
-Una biblioteca personal parece una aplicación pequeña: registrar libros, buscar un autor y guardar el progreso. Sin embargo, incluso una web estática puede publicar archivos que no debería, interpretar datos importados como HTML o carecer de políticas del navegador. Construí **Folio** para explorar esos problemas y automatizar su revisión antes de publicar.
+## Introducción de la aplicación
 
-El [repositorio público de la aplicación](https://github.com/Durdenxito/folio-security-lab) incluye código, pruebas, plantillas de escaneo y el workflow de despliegue. El artículo acompaña una aplicación funcional; los informes permiten revisar qué se comprobó realmente.
+Alero es una aplicación bancaria de demostración. Tiene una cuenta diaria, una cuenta de ahorro y un historial de movimientos. Desde el panel se puede transferir dinero entre ambas cuentas, pagar a dos beneficiarios de ejemplo y descargar los movimientos como CSV. La cuenta de ahorro alimenta una meta para un viaje; la tarjeta virtual se puede pausar y reactivar.
 
-![Interfaz de Folio](https://raw.githubusercontent.com/Durdenxito/folio-security-lab/main/docs/images/folio-desktop.png)
+El [repositorio público](https://github.com/Durdenxito/folio-security-lab) contiene la aplicación y su automatización. Está hecha con HTML, CSS y módulos JavaScript. El navegador conserva el estado en `localStorage`, por lo que las operaciones pertenecen a ese dispositivo. No hay una entidad financiera detrás ni se mueve dinero real. Este alcance permite estudiar el formulario, los cálculos y el empaquetado sin introducir credenciales bancarias.
 
-## Una aplicación pequeña con una superficie concreta
+![Panel de cuentas de Alero](https://raw.githubusercontent.com/Durdenxito/folio-security-lab/main/docs/images/alero-desktop.png)
 
-Folio organiza una biblioteca mediante tarjetas con portadas tipográficas. Permite añadir, editar y eliminar libros, registrar páginas, escribir notas, filtrar por estado e importar o exportar JSON. La interfaz se adapta al móvil y guarda datos en `localStorage`.
+## Propósito de la prueba y herramientas utilizadas
 
-Elegí HTML, CSS y módulos JavaScript sin dependencias de ejecución. Las fuentes están incluidas en el proyecto y no se consulta ningún servicio externo durante el uso. Eso simplifica el despliegue estático, aunque implica que la biblioteca pertenece a ese navegador y necesita exportarse para respaldarla.
+La revisión busca responder dos preguntas: ¿puede una operación dejar un saldo incorrecto?, y ¿qué problemas detectan los escáneres en el paquete que se publicaría? Son preguntas diferentes. Un escáner HTTP puede advertir una cabecera ausente, pero no sabe si una transferencia interna conservó el total entre las cuentas.
 
-Los puntos de entrada más interesantes son el formulario y la importación de archivos. No existe una API ni una base de datos remota: sería incorrecto presentar una supuesta prueba de inyección SQL como evidencia relevante para esta arquitectura.
+Para el comportamiento se utiliza `node:test`, incluido en Node.js, y Playwright para las interacciones del navegador. Las pruebas no dependen de MSTest, xUnit, NUnit ni Moq. Para el análisis de vulnerabilidades se mantienen ZAP y Nuclei, herramientas incluidas en el [listado de OWASP](https://community.owasp.org/Vulnerability_Scanning_Tools).
 
-## Dos herramientas distintas para observar el mismo artefacto
+ZAP Baseline 2.17.0 recorre el servidor local durante un minuto y analiza las respuestas con reglas pasivas. No ejecuta ataques activos. Sus informes HTML y JSON permiten revisar el contexto de las advertencias. Esa es la modalidad descrita en la [documentación del baseline](https://www.zaproxy.org/docs/docker/baseline-scan/).
 
-La [lista de herramientas de OWASP](https://community.owasp.org/Vulnerability_Scanning_Tools) incluye ZAP y Nuclei. Su inclusión no constituye una recomendación o certificación de OWASP; la lista ayudó a escoger herramientas con funciones diferentes de los análisis de dependencias usados en los laboratorios.
+Nuclei 3.11.1 ejecuta tres plantillas oficiales: exposición de `.git/config`, listado de directorios y cabeceras de seguridad. Las plantillas se incluyen sin modificar y con su commit de procedencia. El script limita el ritmo a cinco peticiones por segundo y desactiva Interactsh. La selección explícita de plantillas está documentada por [ProjectDiscovery](https://docs.projectdiscovery.io/opensource/nuclei/running).
 
-Con **ZAP Baseline 2.17.0** ejecuté el spider durante un minuto y después el análisis pasivo de las respuestas. Según su [documentación](https://www.zaproxy.org/docs/docker/baseline-scan/), el baseline no realiza ataques activos. Produce reportes HTML, JSON y Markdown que el pipeline conserva como artefactos.
+## Desarrollo
 
-Con **Nuclei 3.11.1** ejecuté únicamente tres plantillas oficiales: cabeceras de seguridad, exposición de `.git/config` y listado de directorios. Están copiadas sin modificar desde un commit identificado de `nuclei-templates`, con su licencia y procedencia. El motor limita las solicitudes a cinco por segundo y desactiva Interactsh. La [documentación de Nuclei](https://docs.projectdiscovery.io/opensource/nuclei/running) explica la selección de plantillas y los formatos de salida; aquí se conserva JSONL.
+El cálculo de importes fue el primer punto de revisión. JavaScript representa los números decimales mediante coma flotante, de modo que no conviene encadenar operaciones con importes como `0.10`. Alero convierte el texto del formulario a céntimos enteros: `12.34` se almacena como `1234`. El parser admite punto o coma decimal y rechaza cantidades negativas, cero, notación exponencial y más de dos decimales.
+
+Una transferencia genera un único movimiento con origen, destino e importe. Los saldos se calculan a partir de ese historial. Antes de crear el movimiento se comprueba que las cuentas sean diferentes, que el destino exista y que haya fondos. El identificador de la solicitud impide registrarla dos veces. La persistencia ocurre antes de sustituir el estado de la pantalla: si el navegador rechaza la escritura, no se aplica el débito.
+
+Las pruebas verifican estas condiciones con cantidades concretas. Una transferencia de S/ 0.10 debe restar diez céntimos de una cuenta y sumarlos a la otra, sin cambiar el total. Un pago a un beneficiario reduce el total disponible. Una solicitud de S/ 1,000,000 sin fondos debe dejar el historial intacto. Otra prueba provoca un error de almacenamiento y comprueba que el saldo de ahorro siga siendo S/ 4,500.00.
+
+El concepto de una transferencia también es una entrada de usuario. La vista lo inserta mediante `textContent`. Playwright envía un concepto que contiene un elemento `img` con `onerror`; después comprueba que el texto sea visible, que no se cree una imagen y que no se ejecute el indicador de prueba. El CSV escapa comillas y antepone un apóstrofo cuando una celda podría interpretarse como fórmula.
+
+El empaquetado se revisa por separado. El build elimina el directorio de salida y copia únicamente `index.html`, `assets/` y `src/`. Una prueba introduce un `.git/config` residual y confirma que desaparece al reconstruir. Los archivos del repositorio, los tests y las evidencias no forman parte del sitio.
+
+Para ejecutar la revisión local:
 
 ```sh
 npm ci
@@ -36,45 +46,16 @@ npm run build
 npm run scan -- --compare
 ```
 
-Los objetivos son dos servidores temporales de esta misma aplicación. No se analizan sitios de terceros.
+La comparación analiza dos copias propias. El control retira la CSP del HTML e incluye un `.git/config` mínimo sin credenciales. La otra copia sirve el artefacto final. Es un experimento controlado de empaquetado; no representa un incidente ocurrido en un banco. Los resultados de esta versión se conservan en el [informe y sus resúmenes originales](https://github.com/Durdenxito/folio-security-lab/blob/main/docs/security-results.md).
 
-## Un experimento de empaquetado que se puede repetir
+En la ejecución del 22 de noviembre de 2026 aprobaron siete pruebas de lógica y empaquetado y seis de navegador. ZAP informó nueve grupos de alertas en cada variante, sin alertas altas. Nuclei pasó de diez coincidencias en el control a nueve en el final: dejó de detectar el archivo de Git. Las nueve coincidencias restantes son avisos informativos de cabeceras. El número de alertas ZAP no bajó porque el aviso de CSP ausente fue sustituido por otro sobre una directiva sin fallback.
 
-Para comprobar que las herramientas detectan un problema conocido, el script crea un **control separado**: copia el build, retira la CSP del HTML y agrega un archivo `.git/config` mínimo sin credenciales. Esta variante no es una exposición descubierta en producción ni se publica. La otra variante sirve el `dist/` real.
+La CSP del HTML restringe los recursos al mismo origen y bloquea conexiones de red. Su alcance tiene un límite concreto: la protección `frame-ancestors` requiere una cabecera HTTP y no funciona desde un `<meta>`. Por eso el aviso de framing debe revisarse como hallazgo pendiente. Nuclei busca la cabecera CSP y puede seguir avisando aunque ZAP reconozca la política del HTML. Tampoco corresponde atribuir a Pages las cabeceras del servidor HTTP usado en las pruebas locales.
 
-Los resultados locales del 18 de noviembre de 2026 fueron:
+GitHub Actions ejecuta pruebas, build, Playwright y escáneres con cada cambio. El control de calidad falla si un motor no termina correctamente, si ZAP encuentra una alerta alta, si Nuclei detecta severidad alta o crítica, o si se expone Git. Los demás avisos permanecen en los reportes. El workflow de Pages repite los controles y publica `dist/` en un job separado con los permisos necesarios, siguiendo la [documentación de GitHub](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages). Su ejecución es manual; el despliegue todavía no se ha activado.
 
-| Observación | Control | Artefacto final |
-| --- | --- | --- |
-| Nuclei detecta `.git/config` | Sí, severidad media | No |
-| ZAP avisa CSP ausente | Sí | No |
-| ZAP avisa falta de protección contra framing | Sí | Sí |
-| ZAP: grupos de alertas | 10 | 10 |
-| Nuclei: coincidencias | 10 | 9 |
-| Alertas altas de ZAP | 0 | 0 |
+## Conclusiones
 
-Los [resúmenes originales](https://github.com/Durdenxito/folio-security-lab/tree/main/docs/evidence) permiten contrastar estos números. No significa que desaparecieran todas las advertencias: ZAP sustituyó el aviso de CSP ausente por uno sobre una directiva sin fallback, relacionado con `frame-ancestors`. Nuclei sigue informando nueve cabeceras ausentes en el servidor HTTP local.
+El modelo de movimientos permite comprobar los saldos sin mantener dos cifras independientes que podrían quedar desactualizadas. Las pruebas cubren los rechazos y los fallos de persistencia, además de una operación correcta. El escaneo complementa esa revisión al inspeccionar lo que responde el servidor y detectar archivos que no deberían publicarse.
 
-## Corregir y entender lo que queda
-
-El build limpia `dist/` y copia una lista explícita: HTML, estilos, fuentes y módulos de la aplicación. Una prueba deja un `.git/config` residual y comprueba que el siguiente build lo elimina. Publicar el directorio del repositorio completo sería una decisión distinta y peligrosa.
-
-Para la entrada de usuario, el código valida campos, cantidades de páginas, estados y tamaño del archivo. Al representar títulos o notas utiliza `textContent`. Una prueba real de navegador importa un título con un elemento `img` y un manejador `onerror`: se muestra literalmente, no aparece una imagen y el indicador de ejecución permanece sin definir.
-
-La CSP del HTML permite scripts, estilos y fuentes del mismo origen y bloquea conexiones de red y objetos. Sin embargo, un `<meta>` no reemplaza una cabecera HTTP. No añadí una directiva `frame-ancestors` a ese elemento para aparentar una corrección: esa protección debe llegar en una cabecera. GitHub Pages tampoco permite establecer cabeceras arbitrarias mediante un archivo de configuración de la aplicación. Si esa protección es un requisito, conviene cambiar a un alojamiento que sí lo permita.
-
-Otra diferencia importante: Nuclei comprueba la cabecera CSP; ZAP reconoce la política en HTML. Sus resultados no son contradictorios. El aviso HSTS describe el servidor HTTP de pruebas, no el HTTPS de un futuro despliegue público.
-
-## Automatizar calidad y preparar el despliegue
-
-`quality.yml` corre con cada push y pull request: instala, prueba lógica, construye, ejecuta Playwright y lanza ambos escáneres. El job falla si un escáner no termina correctamente, si ZAP encuentra severidad alta, si Nuclei encuentra severidad alta/crítica o si aparece exposición de Git. Las demás alertas se conservan para revisión; una marca verde no certifica una aplicación libre de vulnerabilidades.
-
-El workflow `pages.yml` repite esas verificaciones antes de subir `dist/`. Después, un job separado usa `pages: write`, `id-token: write` y el entorno `github-pages`. Sigue la [configuración oficial de Pages con Actions](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
-
-El destino es el alojamiento público GitHub Pages. **En esta preparación el despliegue todavía no se ha ejecutado**: su activación manual está descrita en el README. La dirección prevista es `https://durdenxito.github.io/folio-security-lab/`; debe verificarse después de publicar antes de presentarla como una aplicación disponible.
-
-## Qué demuestra esta revisión
-
-El experimento muestra una detección reproducible de metadatos expuestos, una mejora de la política del navegador y pruebas de cómo se trata el contenido importado. También muestra límites: el spider tradicional no recorre todos los estados del JavaScript y tres plantillas no equivalen a un inventario completo de vulnerabilidades.
-
-El siguiente paso operativo es activar Pages, revisar el sitio real y volver a evaluar sus respuestas. El video de demostración debe publicarse en una red social y enlazarse aquí antes de publicar este borrador; sus enlaces y el del artículo se compartirán en el grupo solicitado.
+La aplicación conserva límites propios de una demo: cualquiera con acceso al navegador puede modificar el estado local. Las pruebas realizadas no evalúan autenticación, autorización entre clientes ni un backend transaccional, porque esos componentes no existen aquí. Una banca real necesitaría resolverlos en el servidor. En esta versión, la evidencia útil es reproducible y acotada: reglas de transferencia comprobadas, contenido hostil tratado como texto y reportes que conservan las advertencias pendientes antes de habilitar Pages.

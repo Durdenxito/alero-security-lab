@@ -19,4 +19,4 @@ const server = createServer(async (request, response) => {
     response.end(request.method === 'HEAD' ? undefined : await readFile(file));
   } catch { response.writeHead(404); response.end('No encontrado'); }
 });
-server.listen(port, process.env.HOST ?? '127.0.0.1', () => console.log(`Folio: http://localhost:${port}${base}`));
+server.listen(port, process.env.HOST ?? '127.0.0.1', () => console.log(`Alero: http://localhost:${port}${base}`));

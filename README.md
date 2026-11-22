@@ -1,30 +1,23 @@
-# Folio · Tu próxima página
+# Alero · banca personal de demostración
 
-Una biblioteca personal para organizar lecturas con una interfaz editorial. Añade libros, guarda notas, registra páginas y encuentra tu próxima historia.
+![Panel de Alero](docs/images/alero-desktop.png)
 
-![Biblioteca de Folio](docs/images/folio-desktop.png)
+Alero permite consultar dos cuentas en soles, mover fondos entre ellas y registrar pagos a beneficiarios. Incluye búsqueda de movimientos, filtros de ingresos y salidas, descarga CSV, meta de ahorro y pausa de una tarjeta virtual.
 
-## La aplicación
-
-- Crear, editar y eliminar libros con portadas tipográficas originales.
-- Registrar progreso; el estado cambia automáticamente entre por leer, leyendo y terminado.
-- Buscar títulos y autores sin distinguir tildes, filtrar y ordenar la biblioteca.
-- Importar y exportar JSON con validación de formato y límites.
-- Guardar los datos en este navegador mediante `localStorage`, sin cuentas ni servidor de datos.
-- Usar la interfaz en escritorio o móvil, con navegación por teclado y diálogos nativos.
-
-Los libros iniciales son ejemplos. No existe sincronización entre dispositivos: conserva una exportación si necesitas respaldar tu biblioteca. HTML, CSS y JavaScript nativo; fuentes Lora y Manrope incluidas con sus licencias OFL. No hay servicios externos durante el uso de la app.
+Es una simulación educativa: el estado se guarda en este navegador. No tiene autenticación, servidor bancario ni conexión con entidades financieras; los datos y el dinero son de demostración. El estado local puede modificarse con las herramientas del navegador y no constituye un registro financiero confiable.
 
 ## Ejecutar
 
-Requisitos: Node.js 24 y npm. Docker con contenedores Linux para los escáneres.
+Node.js 24 y npm. Para ZAP y Nuclei también se necesita Docker con contenedores Linux.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Abrir http://localhost:4173. El build genera `dist/` desde una lista de archivos permitidos y elimina residuos de compilaciones anteriores.
+Abrir http://localhost:4173. No hay dependencias de ejecución ni recursos externos durante el uso. Las fuentes Manrope y Lora incluyen sus licencias OFL en `assets/fonts/`.
+
+## Pruebas y escaneo
 
 ```sh
 npm test
@@ -35,36 +28,20 @@ npm run scan
 npm run scan -- --compare
 ```
 
-Las pruebas de navegador usan `/folio-security-lab/`, el mismo subdirectorio previsto para Pages. La comparación crea un empaquetado de control separado, sin CSP y con un `.git/config` de prueba sin credenciales. Nunca modifica el código fuente ni se publica ese control. Solo se analizan copias locales de esta aplicación.
+Las pruebas utilizan `node:test` y Playwright. No se incluyen MSTest, xUnit, NUnit ni Moq. Se verifican operaciones en céntimos enteros, conservación del total entre cuentas, fondos insuficientes, identificadores duplicados, validación del estado, exportación CSV, persistencia, XSS, fallo de almacenamiento y uso móvil.
 
-## Automatización y Pages
+`scripts/build.mjs` limpia `dist/` y copia solo HTML, recursos y módulos. ZAP Baseline 2.17.0 realiza un análisis pasivo; Nuclei 3.11.1 ejecuta tres plantillas oficiales versionadas en `security/nuclei/`. El control comparativo agrega un `.git/config` de prueba sin credenciales y retira la CSP en una copia separada. Nunca se publica esa copia ni se escanean servicios de terceros.
 
-Repositorio público: https://github.com/Durdenxito/folio-security-lab
+El pipeline bloquea errores de ejecución, alertas ZAP altas, Nuclei alto/crítico o exposición de Git. Las demás alertas se conservan para revisión. Aprobar no implica ausencia de vulnerabilidades. [Resultados y límites](docs/security-results.md).
 
-`quality.yml` ejecuta pruebas y escáneres en cada push a `main` y pull request. Los reportes completos quedan como artefacto `folio-quality`. `pages.yml` hace las mismas comprobaciones y publica exclusivamente `dist/` mediante GitHub Actions, con el entorno `github-pages` y permisos de despliegue limitados a ese job.
+## Automatización de GitHub Pages
 
-El despliegue está preparado y su activación es manual:
+El repositorio se mantiene en [Durdenxito/folio-security-lab](https://github.com/Durdenxito/folio-security-lab). La ruta histórica se conserva para mantener sus enlaces.
 
-1. En **Settings → Pages → Build and deployment**, seleccionar **GitHub Actions**.
-2. En **Actions → Publicar Folio en GitHub Pages**, ejecutar **Run workflow** sobre `main`.
-3. Consultar el enlace devuelto por el job `deploy` y verificar la aplicación publicada.
+`quality.yml` ejecuta las pruebas y los escáneres en pushes a `main` y pull requests. El artefacto `alero-quality` conserva los reportes y las pruebas de navegador. `pages.yml` repite las verificaciones y publica solo `dist/`, con un job de despliegue separado y el entorno `github-pages`.
 
-Dirección prevista tras el despliegue: `https://durdenxito.github.io/folio-security-lab/`. Todavía no se presenta como sitio publicado. Los pushes ejecutan calidad y no despliegan Pages.
+Para publicar: **Settings → Pages → GitHub Actions**, después **Actions → Publicar Alero en GitHub Pages → Run workflow**. Dirección prevista: `https://durdenxito.github.io/folio-security-lab/`. La publicación sigue siendo manual y no se ha ejecutado. Configuración basada en la [documentación oficial](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
 
-La configuración sigue la [documentación oficial de GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
+## Artículo
 
-## Análisis de vulnerabilidades
-
-Se usan **ZAP Baseline 2.17.0** y **Nuclei 3.11.1**, incluidos en el [listado de OWASP](https://community.owasp.org/Vulnerability_Scanning_Tools). ZAP inspecciona respuestas con reglas pasivas; Nuclei ejecuta tres plantillas oficiales versionadas: cabeceras, exposición de Git y listado de directorios. Las plantillas y su procedencia están en `security/nuclei/`.
-
-La política bloquea errores de los escáneres, alertas altas de ZAP, hallazgos altos/críticos de Nuclei y cualquier exposición de `.git/config`. Conserva los avisos de otras severidades para revisión; aprobar el job no significa ausencia de vulnerabilidades. El argumento `-I` de ZAP permite revisar las advertencias con esta política explícita, sin ocultarlas.
-
-Resultados locales y límites: [informe](docs/security-results.md). La CSP en HTML restringe recursos y conexiones, pero no reemplaza cabeceras HTTP. GitHub Pages no permite configurar cabeceras arbitrarias desde estos archivos. Los avisos de framing y cabeceras siguen documentados; no se agrega una directiva `frame-ancestors` ineficaz a un `<meta>`.
-
-## Material del artículo y video
-
-- [Artículo preparado para Dev.to](docs/article.md).
-- [Guion del video, menor de cinco minutos](docs/video-script.md).
-- [Resultados y evidencias reproducibles](docs/security-results.md).
-
-La publicación del artículo, el video en una red social y el envío al grupo de Telegram requieren sus enlaces públicos finales. El material preparado no sustituye esas publicaciones.
+[Alero: pruebas y escaneo de una aplicación bancaria](docs/article.md), preparado para Dev.to con introducción, propósito y herramientas, desarrollo y conclusiones. No se genera video para esta versión.

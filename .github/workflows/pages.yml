@@ -1,4 +1,4 @@
-name: Publicar Folio en GitHub Pages
+name: Publicar Alero en GitHub Pages
 on:
   workflow_dispatch:
 permissions:
@@ -28,7 +28,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: folio-pages-quality
+          name: alero-pages-quality
           path: artifacts/security/
       - uses: actions/upload-pages-artifact@v4
         with:

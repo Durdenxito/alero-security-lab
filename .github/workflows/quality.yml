@@ -32,7 +32,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: folio-quality
+          name: alero-quality
           path: |
             artifacts/security/
             playwright-report/

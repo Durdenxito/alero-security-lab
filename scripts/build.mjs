@@ -7,4 +7,4 @@ await rm(resolve(project, 'dist'), { recursive: true, force: true });
 await mkdir('dist', { recursive: true });
 for (const path of ['index.html', 'assets', 'src']) await cp(path, `dist/${path}`, { recursive: true });
 await writeFile('dist/.nojekyll', '');
-console.log('Folio listo en dist/. Solo se incluyen los archivos de la aplicación.');
+console.log('Alero listo en dist/. Solo se incluyen los archivos de la aplicación.');

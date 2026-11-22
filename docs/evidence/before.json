@@ -1,8 +1,8 @@
 {
   "variant": "before",
   "target": "http://host.docker.internal:4181/",
-  "scannedAt": "2026-11-18T23:25:56.693Z",
-  "appSha256": "943b4da40087c45db9a72d1ea55718d711a88e73ca96f0457b29cd2cc2b99e1d",
+  "scannedAt": "2026-11-22T07:10:31.516Z",
+  "appSha256": "993ec8dfeabbe138d8e4babc39ef2131f660bfb6ba4c01d8b22ff50a28985df9",
   "zap": {
     "image": "ghcr.io/zaproxy/zaproxy@sha256:9624669db72f54d86c4b46a7064518bd9bf79d8c61a4c31befa9923489f328af",
     "version": "2.17.0",
@@ -11,25 +11,25 @@
         "id": "10038",
         "name": "Content Security Policy (CSP) Header Not Set",
         "risk": 2,
-        "count": "3"
+        "count": "2"
       },
       {
         "id": "10020",
         "name": "Missing Anti-clickjacking Header",
         "risk": 2,
-        "count": "3"
+        "count": "2"
       },
       {
         "id": "90004",
         "name": "Cross-Origin-Embedder-Policy Header Missing or Invalid",
         "risk": 1,
-        "count": "3"
+        "count": "2"
       },
       {
         "id": "90004",
         "name": "Cross-Origin-Opener-Policy Header Missing or Invalid",
         "risk": 1,
-        "count": "3"
+        "count": "2"
       },
       {
         "id": "90004",
@@ -41,7 +41,7 @@
         "id": "10063",
         "name": "Permissions Policy Header Not Set",
         "risk": 1,
-        "count": "4"
+        "count": "3"
       },
       {
         "id": "10019",
@@ -60,12 +60,6 @@
         "name": "Storable but Non-Cacheable Content",
         "risk": 0,
         "count": "5"
-      },
-      {
-        "id": "10031",
-        "name": "User Controllable HTML Element Attribute (Potential XSS)",
-        "risk": 0,
-        "count": "2"
       }
     ]
   },
@@ -86,6 +80,20 @@
         "name": "Git Configuration - Detect",
         "severity": "medium",
         "url": "http://host.docker.internal:4181/.git/config"
+      },
+      {
+        "id": "http-missing-security-headers",
+        "matcher": "cross-origin-embedder-policy",
+        "name": "HTTP Missing Security Headers",
+        "severity": "info",
+        "url": "http://host.docker.internal:4181/"
+      },
+      {
+        "id": "http-missing-security-headers",
+        "matcher": "cross-origin-resource-policy",
+        "name": "HTTP Missing Security Headers",
+        "severity": "info",
+        "url": "http://host.docker.internal:4181/"
       },
       {
         "id": "http-missing-security-headers",
@@ -124,20 +132,6 @@
       },
       {
         "id": "http-missing-security-headers",
-        "matcher": "referrer-policy",
-        "name": "HTTP Missing Security Headers",
-        "severity": "info",
-        "url": "http://host.docker.internal:4181/"
-      },
-      {
-        "id": "http-missing-security-headers",
-        "matcher": "cross-origin-embedder-policy",
-        "name": "HTTP Missing Security Headers",
-        "severity": "info",
-        "url": "http://host.docker.internal:4181/"
-      },
-      {
-        "id": "http-missing-security-headers",
         "matcher": "cross-origin-opener-policy",
         "name": "HTTP Missing Security Headers",
         "severity": "info",
@@ -145,7 +139,7 @@
       },
       {
         "id": "http-missing-security-headers",
-        "matcher": "cross-origin-resource-policy",
+        "matcher": "referrer-policy",
         "name": "HTTP Missing Security Headers",
         "severity": "info",
         "url": "http://host.docker.internal:4181/"
