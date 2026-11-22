@@ -1,6 +1,6 @@
 # Revisión de seguridad de Alero
 
-Fecha: 22 de noviembre de 2026. Alcance: la app bancaria de demostración servida localmente; no es una evaluación de una entidad financiera ni del futuro alojamiento público.
+Fecha: 22 de noviembre de 2026. Alcance: la app bancaria de demostración servida localmente; no es una evaluación de una entidad financiera ni del alojamiento público.
 
 ## Ejecución y evidencias
 
@@ -32,7 +32,7 @@ Las nueve coincidencias Nuclei finales son informativas y se refieren a cabecera
 
 Nuclei detecta el archivo de Git en el control y no en el paquete final. ZAP reconoce la CSP del HTML final. Persisten advertencias de framing, políticas de cabeceras y respuestas auxiliares. Nuclei verifica la cabecera CSP, por lo que su aviso puede continuar aunque exista una política en HTML.
 
-`frame-ancestors` requiere una cabecera HTTP; agregarla en `<meta>` no soluciona el framing. El aviso HSTS corresponde al servidor HTTP local. Los reportes no describen las cabeceras HTTPS de un despliegue de Pages todavía no ejecutado.
+`frame-ancestors` requiere una cabecera HTTP; agregarla en `<meta>` no soluciona el framing. El aviso HSTS corresponde al servidor HTTP local. Los reportes no describen las cabeceras HTTPS de la versión publicada en Pages.
 
 Los informes completos se generan en `artifacts/security/` por defecto y se conservan como artefactos `alero-quality` en Actions. El campo `appSha256` del resumen identifica el HTML, no todo el paquete.
 

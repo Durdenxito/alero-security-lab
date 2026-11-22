@@ -9,9 +9,9 @@ tags: security, javascript, testing, githubactions
 
 Alero es una aplicación bancaria de demostración. Tiene una cuenta diaria, una cuenta de ahorro y un historial de movimientos. Desde el panel se puede transferir dinero entre ambas cuentas, pagar a dos beneficiarios de ejemplo y descargar los movimientos como CSV. La cuenta de ahorro alimenta una meta para un viaje; la tarjeta virtual se puede pausar y reactivar.
 
-El [repositorio público](https://github.com/Durdenxito/folio-security-lab) contiene la aplicación y su automatización. Está hecha con HTML, CSS y módulos JavaScript. El navegador conserva el estado en `localStorage`, por lo que las operaciones pertenecen a ese dispositivo. No hay una entidad financiera detrás ni se mueve dinero real. Este alcance permite estudiar el formulario, los cálculos y el empaquetado sin introducir credenciales bancarias.
+El [repositorio público](https://github.com/Durdenxito/alero-security-lab) contiene la aplicación y su automatización. Está hecha con HTML, CSS y módulos JavaScript. El navegador conserva el estado en `localStorage`, por lo que las operaciones pertenecen a ese dispositivo. No hay una entidad financiera detrás ni se mueve dinero real. Este alcance permite estudiar el formulario, los cálculos y el empaquetado sin introducir credenciales bancarias.
 
-![Panel de cuentas de Alero](https://raw.githubusercontent.com/Durdenxito/folio-security-lab/main/docs/images/alero-desktop.png)
+![Panel de cuentas de Alero](https://raw.githubusercontent.com/Durdenxito/alero-security-lab/main/docs/images/alero-desktop.png)
 
 ## Propósito de la prueba y herramientas utilizadas
 
@@ -46,13 +46,13 @@ npm run build
 npm run scan -- --compare
 ```
 
-La comparación analiza dos copias propias. El control retira la CSP del HTML e incluye un `.git/config` mínimo sin credenciales. La otra copia sirve el artefacto final. Es un experimento controlado de empaquetado; no representa un incidente ocurrido en un banco. Los resultados de esta versión se conservan en el [informe y sus resúmenes originales](https://github.com/Durdenxito/folio-security-lab/blob/main/docs/security-results.md).
+La comparación analiza dos copias propias. El control retira la CSP del HTML e incluye un `.git/config` mínimo sin credenciales. La otra copia sirve el artefacto final. Es un experimento controlado de empaquetado; no representa un incidente ocurrido en un banco. Los resultados de esta versión se conservan en el [informe y sus resúmenes originales](https://github.com/Durdenxito/alero-security-lab/blob/main/docs/security-results.md).
 
 En la ejecución del 22 de noviembre de 2026 aprobaron siete pruebas de lógica y empaquetado y seis de navegador. ZAP informó nueve grupos de alertas en cada variante, sin alertas altas. Nuclei pasó de diez coincidencias en el control a nueve en el final: dejó de detectar el archivo de Git. Las nueve coincidencias restantes son avisos informativos de cabeceras. El número de alertas ZAP no bajó porque el aviso de CSP ausente fue sustituido por otro sobre una directiva sin fallback.
 
 La CSP del HTML restringe los recursos al mismo origen y bloquea conexiones de red. Su alcance tiene un límite concreto: la protección `frame-ancestors` requiere una cabecera HTTP y no funciona desde un `<meta>`. Por eso el aviso de framing debe revisarse como hallazgo pendiente. Nuclei busca la cabecera CSP y puede seguir avisando aunque ZAP reconozca la política del HTML. Tampoco corresponde atribuir a Pages las cabeceras del servidor HTTP usado en las pruebas locales.
 
-GitHub Actions ejecuta pruebas, build, Playwright y escáneres con cada cambio. El control de calidad falla si un motor no termina correctamente, si ZAP encuentra una alerta alta, si Nuclei detecta severidad alta o crítica, o si se expone Git. Los demás avisos permanecen en los reportes. El workflow de Pages repite los controles y publica `dist/` en un job separado con los permisos necesarios, siguiendo la [documentación de GitHub](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages). Su ejecución es manual; el despliegue todavía no se ha activado.
+GitHub Actions ejecuta pruebas, build, Playwright y escáneres con cada cambio. El control de calidad falla si un motor no termina correctamente, si ZAP encuentra una alerta alta, si Nuclei detecta severidad alta o crítica, o si se expone Git. Los demás avisos permanecen en los reportes. El workflow de Pages repite los controles y publica `dist/` en un job separado con los permisos necesarios, siguiendo la [documentación de GitHub](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages). Su ejecución es manual. La [aplicación publicada en GitHub Pages](https://durdenxito.github.io/alero-security-lab/) conserva el estado en el navegador. Una comprobación sobre el sitio público confirmó que una transferencia y la pausa de tarjeta permanecen después de recargar y reiniciar el navegador con el mismo perfil. Esta persistencia no sincroniza datos entre dispositivos.
 
 ## Conclusiones
 

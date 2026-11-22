@@ -36,12 +36,18 @@ El pipeline bloquea errores de ejecución, alertas ZAP altas, Nuclei alto/críti
 
 ## Automatización de GitHub Pages
 
-El repositorio se mantiene en [Durdenxito/folio-security-lab](https://github.com/Durdenxito/folio-security-lab). La ruta histórica se conserva para mantener sus enlaces.
+El repositorio se mantiene en [Durdenxito/alero-security-lab](https://github.com/Durdenxito/alero-security-lab). Sitio publicado: https://durdenxito.github.io/alero-security-lab/.
 
 `quality.yml` ejecuta las pruebas y los escáneres en pushes a `main` y pull requests. El artefacto `alero-quality` conserva los reportes y las pruebas de navegador. `pages.yml` repite las verificaciones y publica solo `dist/`, con un job de despliegue separado y el entorno `github-pages`.
 
-Para publicar: **Settings → Pages → GitHub Actions**, después **Actions → Publicar Alero en GitHub Pages → Run workflow**. Dirección prevista: `https://durdenxito.github.io/folio-security-lab/`. La publicación sigue siendo manual y no se ha ejecutado. Configuración basada en la [documentación oficial](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
+Para publicar: **Settings → Pages → GitHub Actions**, después **Actions → Publicar Alero en GitHub Pages → Run workflow**. Sitio publicado: `https://durdenxito.github.io/alero-security-lab/`. El despliegue inicial está completado. Para publicar cambios posteriores, ejecutar de nuevo el workflow manual. Configuración basada en la [documentación oficial](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
 
 ## Artículo
 
 [Alero: pruebas y escaneo de una aplicación bancaria](docs/article.md), preparado para Dev.to con introducción, propósito y herramientas, desarrollo y conclusiones. No se genera video para esta versión.
+
+## Persistencia en Pages
+
+Los movimientos, saldos derivados y el estado de la tarjeta se conservan en `localStorage`, bajo la clave `alero.bank.v1`. Se comprobó en el sitio público que una transferencia y la pausa de tarjeta sobreviven a una recarga y al cierre y reapertura del navegador con el mismo perfil. [Resultado de la comprobación](docs/evidence/pages-persistence.json).
+
+Los datos pertenecen a ese navegador y al origen `https://durdenxito.github.io`; se mantienen al volver a desplegar mientras se conserven el origen y la clave de almacenamiento. No se sincronizan con otros dispositivos, perfiles ni con el servidor local. Borrar los datos del sitio elimina el estado guardado.
