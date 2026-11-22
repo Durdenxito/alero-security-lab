@@ -57,10 +57,6 @@ El repositorio se mantiene en [Durdenxito/alero-security-lab](https://github.com
 
 Para publicar: **Settings → Pages → GitHub Actions**, después **Actions → Publicar Alero en GitHub Pages → Run workflow**. Sitio publicado: `https://durdenxito.github.io/alero-security-lab/`. El despliegue inicial está completado. Para publicar cambios posteriores, ejecutar de nuevo el workflow manual. Configuración basada en la [documentación oficial](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
 
-## Artículo
-
-[Alero: pruebas y escaneo de una aplicación bancaria](docs/article.md), preparado para Dev.to con introducción, propósito y herramientas, desarrollo y conclusiones. No se genera video para esta versión.
-
 ## Persistencia en Pages
 
 Los movimientos, saldos derivados y el estado de la tarjeta se conservan en `localStorage`, bajo la clave `alero.bank.v1`. Se comprobó en el sitio público que una transferencia y la pausa de tarjeta sobreviven a una recarga y al cierre y reapertura del navegador con el mismo perfil. [Resultado de la comprobación](docs/evidence/pages-persistence.json).
